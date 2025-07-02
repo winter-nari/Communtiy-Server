@@ -22,6 +22,7 @@ public class SignController {
     private final UserService userService;
 
 
+    //로그인
     @PostMapping("/signin")
     public ResponseEntity<LoginResponse> signin(@RequestBody LoginRequest loginRequest, HttpServletResponse response) throws Exception {
         LoginResponse loginResponse = userService.signIn(loginRequest, response);
@@ -36,6 +37,7 @@ public class SignController {
                 .build();
     }
 
+    //토큰 재생성
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String refreshToken = CookieUtil.getCookieValue(request, "refreshToken");
