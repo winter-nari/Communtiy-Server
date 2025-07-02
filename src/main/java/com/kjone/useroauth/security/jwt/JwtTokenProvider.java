@@ -1,63 +1,76 @@
 package com.kjone.useroauth.security.jwt;
 
 import com.kjone.useroauth.entity.UserEntity;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
-import java.util.UUID;
 
+@Slf4j
 @Component
 public class JwtTokenProvider {
 
     @Value("${jwt.secret.key}")
-    private String secretKey;
+    private String secretKeyPlain;
 
     private Key key;
 
-    private final long ACCESS_TOKEN_VALID_TIME = 1000L * 60 * 60;       // 1시간
-    private final long REFRESH_TOKEN_VALID_TIME = 1000L * 60 * 60 * 24; // 1일
+    private static final long ACCESS_TOKEN_VALID_TIME = 1000L * 60 * 60;       // 1시간
+    private static final long REFRESH_TOKEN_VALID_TIME = 1000L * 60 * 60 * 24; // 1일
 
     @PostConstruct
     public void init() {
-        this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        // Base64 디코딩 후 키 생성 (환경변수에서 넣을 때 base64 인코딩된 문자열을 넣도록 유도)
+        byte[] decodedKey = Base64.getDecoder().decode(secretKeyPlain);
+        this.key = Keys.hmacShaKeyFor(decodedKey);
     }
 
-    // 토큰 생성 시 userId (Long) 를 subject로 넣음
     public String createAccessToken(UserEntity user) {
-        return createToken(user, ACCESS_TOKEN_VALID_TIME, "ACCESS_TOKEN");
+        return createToken(user.getId(), ACCESS_TOKEN_VALID_TIME, "ACCESS_TOKEN");
     }
 
     public String createRefreshToken(UserEntity user) {
-        return createToken(user, REFRESH_TOKEN_VALID_TIME, "REFRESH_TOKEN");
+        return createToken(user.getId(), REFRESH_TOKEN_VALID_TIME, "REFRESH_TOKEN");
     }
 
-    private String createToken(UserEntity user, long validity, String type) {
+    private String createToken(Long userId, long validity, String type) {
         Date now = new Date();
         return Jwts.builder()
-                .setSubject(String.valueOf(user.getId())) // Long id를 문자열로
+                .setSubject(String.valueOf(userId))
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + validity))
                 .claim("type", type)
-                .claim("email", user.getEmail())
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            String type = claims.get("type", String.class);
+            if (!"ACCESS_TOKEN".equals(type) && !"REFRESH_TOKEN".equals(type)) {
+                throw new JwtException("유효하지 않은 토큰 타입입니다.");
+            }
+
             return true;
+
+        } catch (ExpiredJwtException e) {
+            log.warn("[JWT 만료] {}", e.getMessage());
         } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("[JWT 오류] " + e.getMessage());
-            return false;
+            log.warn("[JWT 오류] {}", e.getMessage());
         }
+        return false;
     }
 
     public String getUserIdFromToken(String token) {
@@ -66,13 +79,4 @@ public class JwtTokenProvider {
                 .getBody()
                 .getSubject();
     }
-
-    public String getEmailFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("email", String.class);
-    }
 }
-
-
