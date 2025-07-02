@@ -1,14 +1,18 @@
 package com.kjone.useroauth.service.impl;
 
+import com.kjone.useroauth.entity.RefreshTokenEntity;
 import com.kjone.useroauth.entity.UserEntity;
+import com.kjone.useroauth.repository.RefreshTokenRepository;
 import com.kjone.useroauth.repository.UserRepository;
 import com.kjone.useroauth.request.LoginRequest;
 import com.kjone.useroauth.request.SignRequest;
 import com.kjone.useroauth.response.LoginData;
 import com.kjone.useroauth.response.LoginResponse;
 import com.kjone.useroauth.response.SignResponse;
+import com.kjone.useroauth.security.cookie.CookieUtil;
 import com.kjone.useroauth.security.jwt.JwtTokenProvider;
 import com.kjone.useroauth.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.User;
@@ -20,18 +24,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    private static final long REFRESH_TOKEN_VALID_TIME = 1000L * 60 * 60 * 24; // 1일
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; // 추가
-
     @Autowired
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     @Transactional
@@ -86,9 +92,9 @@ public class UserServiceImpl implements UserService {
         return password != null && password.matches(pattern);
     }
 
-    // 로그인 메서드
+    // 로그인
     @Override
-    public LoginResponse signIn(LoginRequest loginRequest) throws Exception {
+    public LoginResponse signIn(LoginRequest loginRequest, HttpServletResponse response) throws Exception {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
@@ -103,7 +109,59 @@ public class UserServiceImpl implements UserService {
         String accessToken = jwtTokenProvider.createAccessToken(user);
         String refreshToken = jwtTokenProvider.createRefreshToken(user);
 
-        LoginData loginData = new LoginData(accessToken, refreshToken);
-        return new LoginResponse("OK", 200, loginData);
+        // ✅ RefreshToken DB에 저장 (신규 or 갱신)
+        Optional<RefreshTokenEntity> existingToken = refreshTokenRepository.findByUser(user);
+
+        if (existingToken.isPresent()) {
+            RefreshTokenEntity tokenEntity = existingToken.get();
+            tokenEntity.setToken(refreshToken);
+            tokenEntity.setExpiryDate(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME));
+            refreshTokenRepository.save(tokenEntity);
+        } else {
+            RefreshTokenEntity tokenEntity = RefreshTokenEntity.builder()
+                    .user(user)
+                    .token(refreshToken)
+                    .expiryDate(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME))
+                    .build();
+            refreshTokenRepository.save(tokenEntity);
+        }
+
+        // ✅ 쿠키에 저장
+        CookieUtil.addCookie(response, "refreshToken", refreshToken, 60 * 60 * 24, true, true, "/", "Strict");
+
+        return new LoginResponse("OK", 200, new LoginData(accessToken, null));
     }
+
+    // 토큰 재발급
+    @Override
+    public LoginResponse refreshToken(String refreshToken, HttpServletResponse response) throws Exception {
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new IllegalArgumentException("Refresh token이 유효하지 않습니다.");
+        }
+
+        String userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
+        Long userIdLong = Long.parseLong(userId);
+
+        UserEntity user = userRepository.findById(userIdLong)
+                .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+
+        RefreshTokenEntity savedTokenEntity = refreshTokenRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("저장된 RefreshToken이 없습니다."));
+
+        if (!refreshToken.equals(savedTokenEntity.getToken())) {
+            throw new IllegalArgumentException("토큰 불일치, 재로그인 필요");
+        }
+
+        String newAccessToken = jwtTokenProvider.createAccessToken(user);
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(user);
+
+        savedTokenEntity.setToken(newRefreshToken);
+        savedTokenEntity.setExpiryDate(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME));
+        refreshTokenRepository.save(savedTokenEntity);
+
+        CookieUtil.addCookie(response, "refreshToken", newRefreshToken, 60 * 60 * 24, true, true, "/", "Strict");
+
+        return new LoginResponse("OK", 200, new LoginData(newAccessToken, null));
+    }
+
 }
