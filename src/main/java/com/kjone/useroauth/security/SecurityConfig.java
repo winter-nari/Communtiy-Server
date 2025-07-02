@@ -16,6 +16,9 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -41,25 +44,31 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF, CORS 설정 (필요에 따라 수정 가능)
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
-
-                // HTTP 기본 인증 비활성화
-                .httpBasic(AbstractHttpConfigurer::disable)
-
-                // 세션을 사용하지 않음 (JWT는 Stateless)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // 요청 권한 설정
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/sign/signin").permitAll()  // 로그인 허용
-                        .requestMatchers(HttpMethod.POST, "/sign/signup").permitAll()  // 회원가입 허용
-                        .requestMatchers("/favicon.ico").permitAll()                   // 파비콘 허용
-                        .anyRequest().authenticated()                                  // 그 외 요청은 인증 필요
+                // CSRF 활성화 (쿠키 기반 인증과 함께 쓴다면 권장)
+                .csrf(csrf -> csrf
+                        // REST API라면 CSRF 토큰을 헤더에서 읽도록 커스터마이징 가능
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .disable() // 쿠키 인증과 함께라면 disable하지 말고 위처럼 설정 권장
                 )
 
-                // JWT 필터를 UsernamePasswordAuthenticationFilter 전에 등록
+                // CORS 설정 추가 (예시)
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfig.setAllowedOrigins(List.of("https://your-frontend-domain.com")); // 프론트엔드 도메인 설정
+                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfig.setAllowedHeaders(List.of("*"));
+                    corsConfig.setAllowCredentials(true);
+                    corsConfig.setMaxAge(3600L);
+                    return corsConfig;
+                }))
+
+                // httpBasic, session 관리 등 기존 설정 유지
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/sign/signin", "/sign/signup", "/sign/refresh").permitAll()
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
