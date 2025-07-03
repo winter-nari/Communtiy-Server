@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
         String accessToken = jwtTokenProvider.createAccessToken(user);
         String refreshToken = jwtTokenProvider.createRefreshToken(user);
 
-        // ✅ RefreshToken DB에 저장 (신규 or 갱신)
+        // RefreshToken DB에 저장 (신규 or 갱신)
         Optional<RefreshTokenEntity> existingToken = refreshTokenRepository.findByUser(user);
 
         if (existingToken.isPresent()) {
@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
             refreshTokenRepository.save(tokenEntity);
         }
 
-        // ✅ 쿠키에 저장
+        // 쿠키에 저장
         CookieUtil.addCookie(response, "refreshToken", refreshToken, 60 * 60 * 24, true, true, "/", "Strict");
 
         return new LoginResponse("OK", 200, new LoginData(accessToken, null));
