@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.awt.*;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Setter
@@ -30,6 +27,9 @@ public class UserEntity {
     private int age; // 나이
     private String sex; //성별
     private String image;
+
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    private List<BoardEntity> boards = new ArrayList<>();
 
     // 권한이라는 것에 외래키를 추가 함으로써
     @ElementCollection(fetch = FetchType.EAGER)
