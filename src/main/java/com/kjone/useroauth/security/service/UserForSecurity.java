@@ -23,6 +23,11 @@ public class UserForSecurity implements UserDetails {
     @NonNull
     private UserEntity user;
 
+    // 현재 로그인한 유저의 ID 가져오기
+    public Long getId() {
+        return user.getId();
+    }
+
     //일단 테스트
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
