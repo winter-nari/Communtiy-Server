@@ -54,7 +54,7 @@ public class SecurityConfig {
                 // CORS 설정 추가 (예시)
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("http://localhost:3000")); // 프론트엔드 도메인 설정
+                    corsConfig.setAllowedOrigins(List.of("https://test1-fbe39.web.app/", "http://localhost:3000")); // 프론트엔드 도메인 설정
                     corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("*"));
                     corsConfig.setAllowCredentials(true);
@@ -67,6 +67,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/sign/signin", "/sign/signup", "/sign/refresh").permitAll()
+                        .requestMatchers("/image/**", "/uploads/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
