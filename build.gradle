@@ -24,6 +24,11 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    // RabbitMQ Starter (사용 중이라면)
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    // Full Featured STOMP Broker Relay
+    implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
