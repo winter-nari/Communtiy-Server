@@ -1,8 +1,8 @@
-package com.kjone.useroauth.controller;
+package com.kjone.useroauth.domain.oauth.controller;
 
 
-import com.kjone.useroauth.dto.MemberDto;
-import com.kjone.useroauth.service.MeService;
+import com.kjone.useroauth.domain.oauth.dto.response.MemberResponse;
+import com.kjone.useroauth.domain.oauth.service.MeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +17,8 @@ public class MeController {
     private final MeService meService;
 
     @GetMapping
-    public ResponseEntity<MemberDto> getMyInfo() {
-        MemberDto memberDto = meService.me();
-        return ResponseEntity.ok(memberDto);
+    public ResponseEntity<MemberResponse> getMyInfo() {
+        MemberResponse memberResponse = meService.me();
+        return ResponseEntity.ok(memberResponse);
     }
 }
