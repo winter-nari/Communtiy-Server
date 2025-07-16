@@ -1,9 +1,9 @@
-package com.kjone.useroauth.security.service.impl;
+package com.kjone.useroauth.global.security.service.impl;
 
-import com.kjone.useroauth.entity.UserEntity;
-import com.kjone.useroauth.repository.UserRepository;
-import com.kjone.useroauth.security.service.CustomUserDetailService;
-import com.kjone.useroauth.security.service.UserForSecurity;
+import com.kjone.useroauth.domain.oauth.entity.UserEntity;
+import com.kjone.useroauth.domain.oauth.repository.UserRepository;
+import com.kjone.useroauth.global.security.service.CustomUserDetailService;
+import com.kjone.useroauth.global.security.service.UserForSecurity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
