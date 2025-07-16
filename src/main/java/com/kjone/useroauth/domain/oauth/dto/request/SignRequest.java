@@ -1,4 +1,4 @@
-package com.kjone.useroauth.request;
+package com.kjone.useroauth.domain.oauth.dto.request;
 
 
 import lombok.Getter;
