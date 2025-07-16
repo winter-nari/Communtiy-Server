@@ -1,6 +1,6 @@
-package com.kjone.useroauth.security.service;
+package com.kjone.useroauth.global.security.service;
 
-import com.kjone.useroauth.entity.UserEntity;
+import com.kjone.useroauth.domain.oauth.entity.UserEntity;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -8,10 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Data
