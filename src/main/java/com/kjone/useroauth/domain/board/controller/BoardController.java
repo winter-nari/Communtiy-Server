@@ -1,9 +1,9 @@
-package com.kjone.useroauth.controller;
+package com.kjone.useroauth.domain.board.controller;
 
 
-import com.kjone.useroauth.dto.BoardCreateRequestDto;
-import com.kjone.useroauth.dto.BoardWithImageDto;
-import com.kjone.useroauth.service.BoardService;
+import com.kjone.useroauth.domain.board.dto.request.BoardCreateRequest;
+import com.kjone.useroauth.domain.board.dto.reponse.BoardWithImageResponse;
+import com.kjone.useroauth.domain.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +18,12 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping("/id/{boardId}")
-    public BoardWithImageDto getBoard(@PathVariable Long boardId) {
+    public BoardWithImageResponse getBoard(@PathVariable Long boardId) {
         return boardService.getBoardWithImage(boardId);
     }
 
     @GetMapping
-    public List<BoardWithImageDto> getAllBoards() {
+    public List<BoardWithImageResponse> getAllBoards() {
         return boardService.getAllBoardsWithImage();
     }
 
@@ -34,11 +34,11 @@ public class BoardController {
             @RequestPart(value = "image", required = false) MultipartFile imageFile) {
 
         // 직접 BoardCreateRequestDto 대신 개별 필드로 객체 생성
-        BoardCreateRequestDto dto = new BoardCreateRequestDto();
+        BoardCreateRequest dto = new BoardCreateRequest();
         dto.setName(name);
         dto.setDescription(description);
 
-        BoardWithImageDto result = boardService.createBoardWithImage(dto, imageFile);
+        BoardWithImageResponse result = boardService.createBoardWithImage(dto, imageFile);
         return ResponseEntity.ok(result);
     }
 
