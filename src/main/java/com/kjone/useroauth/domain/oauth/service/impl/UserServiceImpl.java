@@ -1,21 +1,19 @@
-package com.kjone.useroauth.service.impl;
+package com.kjone.useroauth.domain.oauth.service.impl;
 
-import com.kjone.useroauth.entity.RefreshTokenEntity;
-import com.kjone.useroauth.entity.UserEntity;
-import com.kjone.useroauth.repository.RefreshTokenRepository;
-import com.kjone.useroauth.repository.UserRepository;
-import com.kjone.useroauth.request.LoginRequest;
-import com.kjone.useroauth.request.SignRequest;
-import com.kjone.useroauth.response.LoginData;
-import com.kjone.useroauth.response.LoginResponse;
-import com.kjone.useroauth.response.SignResponse;
-import com.kjone.useroauth.security.cookie.CookieUtil;
-import com.kjone.useroauth.security.jwt.JwtTokenProvider;
-import com.kjone.useroauth.service.UserService;
+import com.kjone.useroauth.domain.oauth.entity.RefreshToken;
+import com.kjone.useroauth.domain.oauth.entity.UserEntity;
+import com.kjone.useroauth.domain.oauth.repository.RefreshTokenRepository;
+import com.kjone.useroauth.domain.oauth.repository.UserRepository;
+import com.kjone.useroauth.domain.oauth.dto.request.LoginRequest;
+import com.kjone.useroauth.domain.oauth.dto.request.SignRequest;
+import com.kjone.useroauth.domain.oauth.dto.response.LoginDataResponse;
+import com.kjone.useroauth.domain.oauth.dto.response.LoginResponse;
+import com.kjone.useroauth.global.security.cookie.CookieUtil;
+import com.kjone.useroauth.global.security.jwt.JwtTokenProvider;
+import com.kjone.useroauth.domain.oauth.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -110,15 +108,15 @@ public class UserServiceImpl implements UserService {
         String refreshToken = jwtTokenProvider.createRefreshToken(user);
 
         // RefreshToken DB에 저장 (신규 or 갱신)
-        Optional<RefreshTokenEntity> existingToken = refreshTokenRepository.findByUser(user);
+        Optional<RefreshToken> existingToken = refreshTokenRepository.findByUser(user);
 
         if (existingToken.isPresent()) {
-            RefreshTokenEntity tokenEntity = existingToken.get();
+            RefreshToken tokenEntity = existingToken.get();
             tokenEntity.setToken(refreshToken);
             tokenEntity.setExpiryDate(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME));
             refreshTokenRepository.save(tokenEntity);
         } else {
-            RefreshTokenEntity tokenEntity = RefreshTokenEntity.builder()
+            RefreshToken tokenEntity = RefreshToken.builder()
                     .user(user)
                     .token(refreshToken)
                     .expiryDate(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME))
@@ -129,7 +127,7 @@ public class UserServiceImpl implements UserService {
         // 쿠키에 저장
         CookieUtil.addCookie(response, "refreshToken", refreshToken, 60 * 60 * 24, true, true, "/", "Strict");
 
-        return new LoginResponse("OK", 200, new LoginData(accessToken, null));
+        return new LoginResponse("OK", 200, new LoginDataResponse(accessToken, null));
     }
 
     // 토큰 재발급
@@ -145,7 +143,7 @@ public class UserServiceImpl implements UserService {
         UserEntity user = userRepository.findById(userIdLong)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-        RefreshTokenEntity savedTokenEntity = refreshTokenRepository.findByUser(user)
+        RefreshToken savedTokenEntity = refreshTokenRepository.findByUser(user)
                 .orElseThrow(() -> new IllegalArgumentException("저장된 RefreshToken이 없습니다."));
 
         if (!refreshToken.equals(savedTokenEntity.getToken())) {
@@ -161,7 +159,7 @@ public class UserServiceImpl implements UserService {
 
         CookieUtil.addCookie(response, "refreshToken", newRefreshToken, 60 * 60 * 24, true, true, "/", "Strict");
 
-        return new LoginResponse("OK", 200, new LoginData(newAccessToken, null));
+        return new LoginResponse("OK", 200, new LoginDataResponse(newAccessToken, null));
     }
 
 }
