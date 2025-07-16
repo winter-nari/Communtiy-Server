@@ -1,10 +1,10 @@
-package com.kjone.useroauth.controller;
+package com.kjone.useroauth.domain.oauth.controller;
 
-import com.kjone.useroauth.request.LoginRequest;
-import com.kjone.useroauth.request.SignRequest;
-import com.kjone.useroauth.response.LoginResponse;
-import com.kjone.useroauth.security.cookie.CookieUtil;
-import com.kjone.useroauth.service.UserService;
+import com.kjone.useroauth.domain.oauth.dto.request.LoginRequest;
+import com.kjone.useroauth.domain.oauth.dto.request.SignRequest;
+import com.kjone.useroauth.domain.oauth.dto.response.LoginResponse;
+import com.kjone.useroauth.global.security.cookie.CookieUtil;
+import com.kjone.useroauth.domain.oauth.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
