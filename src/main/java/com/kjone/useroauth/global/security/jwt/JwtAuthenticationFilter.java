@@ -1,6 +1,6 @@
-package com.kjone.useroauth.security.jwt;
+package com.kjone.useroauth.global.security.jwt;
 
-import com.kjone.useroauth.security.service.CustomUserDetailService;
+import com.kjone.useroauth.global.security.service.CustomUserDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
