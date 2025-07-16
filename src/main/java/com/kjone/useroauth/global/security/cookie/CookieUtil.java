@@ -1,4 +1,4 @@
-package com.kjone.useroauth.security.cookie;
+package com.kjone.useroauth.global.security.cookie;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
