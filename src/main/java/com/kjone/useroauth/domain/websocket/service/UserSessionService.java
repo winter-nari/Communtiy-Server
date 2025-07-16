@@ -1,4 +1,4 @@
-package com.kjone.useroauth.service;
+package com.kjone.useroauth.domain.websocket.service;
 
 import org.springframework.stereotype.Service;
 
