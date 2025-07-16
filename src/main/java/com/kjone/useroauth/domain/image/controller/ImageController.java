@@ -1,4 +1,4 @@
-package com.kjone.useroauth.controller;
+package com.kjone.useroauth.domain.image.controller;
 
 import org.springframework.core.io.Resource;
 import lombok.RequiredArgsConstructor;
