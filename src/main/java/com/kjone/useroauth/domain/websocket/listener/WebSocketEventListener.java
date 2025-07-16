@@ -1,5 +1,6 @@
-package com.kjone.useroauth.model;
+package com.kjone.useroauth.domain.websocket.listener;
 
+import com.kjone.useroauth.domain.chat.dto.response.ChatMessageResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-/**
- * Created by rajeevkumarsingh on 25/07/17.
- */
 @Component
 public class WebSocketEventListener {
 
@@ -34,8 +32,8 @@ public class WebSocketEventListener {
         if(username != null) {
             logger.info("User Disconnected : " + username);
 
-            ChatMessage chatMessage = new ChatMessage();
-            chatMessage.setType(ChatMessage.MessageType.LEAVE);
+            ChatMessageResponse chatMessage = new ChatMessageResponse();
+            chatMessage.setType(ChatMessageResponse.MessageType.LEAVE);
             chatMessage.setSender(username);
 
             messagingTemplate.convertAndSend("/topic/public", chatMessage);
