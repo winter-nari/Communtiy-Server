@@ -1,11 +1,9 @@
-package com.kjone.useroauth.service;
+package com.kjone.useroauth.domain.oauth.service;
 
 
-import com.kjone.useroauth.entity.UserEntity;
-import com.kjone.useroauth.request.LoginRequest;
-import com.kjone.useroauth.request.SignRequest;
-import com.kjone.useroauth.response.LoginResponse;
-import com.kjone.useroauth.response.SignResponse;
+import com.kjone.useroauth.domain.oauth.dto.request.LoginRequest;
+import com.kjone.useroauth.domain.oauth.dto.request.SignRequest;
+import com.kjone.useroauth.domain.oauth.dto.response.LoginResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface UserService {
