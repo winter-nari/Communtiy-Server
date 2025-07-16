@@ -1,6 +1,6 @@
-package com.kjone.useroauth.security;
+package com.kjone.useroauth.global.security;
 
-import com.kjone.useroauth.security.jwt.JwtAuthenticationFilter;
+import com.kjone.useroauth.global.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,8 +24,6 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-    private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     // 비밀번호 암호화 Bean
@@ -54,7 +52,7 @@ public class SecurityConfig {
                 // CORS 설정 추가 (예시)
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("https://test1-fbe39.web.app/", "http://localhost:3000")); // 프론트엔드 도메인 설정
+                    corsConfig.setAllowedOrigins(List.of("https://test1-fbe39.web.app/", "http://localhost:3000", "http://localhost:8080")); // 프론트엔드 도메인 설정
                     corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("*"));
                     corsConfig.setAllowCredentials(true);
@@ -68,6 +66,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/sign/signin", "/sign/signup", "/sign/refresh").permitAll()
                         .requestMatchers("/image/**", "/uploads/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/chat").permitAll()
+                        .requestMatchers("/ws/**", "/topic/**", "/app/**").permitAll() // WebSocket 인증!
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
