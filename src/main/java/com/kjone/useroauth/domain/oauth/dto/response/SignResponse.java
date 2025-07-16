@@ -1,15 +1,11 @@
-package com.kjone.useroauth.response;
+package com.kjone.useroauth.domain.oauth.dto.response;
 
 
-import com.kjone.useroauth.entity.UserEntity;
+import com.kjone.useroauth.domain.oauth.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.Set;
-import java.util.UUID;
 
 @Getter
 @Builder
