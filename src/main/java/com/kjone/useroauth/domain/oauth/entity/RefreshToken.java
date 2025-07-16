@@ -1,9 +1,8 @@
-package com.kjone.useroauth.entity;
+package com.kjone.useroauth.domain.oauth.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
 import java.util.Date;
 
 @Entity
@@ -13,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RefreshTokenEntity {
+public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
