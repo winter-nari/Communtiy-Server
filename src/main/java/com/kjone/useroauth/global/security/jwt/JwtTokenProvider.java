@@ -1,6 +1,6 @@
-package com.kjone.useroauth.security.jwt;
+package com.kjone.useroauth.global.security.jwt;
 
-import com.kjone.useroauth.entity.UserEntity;
+import com.kjone.useroauth.domain.oauth.entity.UserEntity;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
