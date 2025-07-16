@@ -1,4 +1,4 @@
-package com.kjone.useroauth.dto;
+package com.kjone.useroauth.domain.board.dto.reponse;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BoardWithImageDto {
+public class BoardWithImageResponse {
     private Long id;
     private String name;
     private String description;
