@@ -25,6 +25,7 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     // RabbitMQ Starter (사용 중이라면)
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     // Full Featured STOMP Broker Relay
