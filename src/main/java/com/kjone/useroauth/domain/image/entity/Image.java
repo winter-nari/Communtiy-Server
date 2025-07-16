@@ -1,6 +1,7 @@
-package com.kjone.useroauth.entity;
+package com.kjone.useroauth.domain.image.entity;
 
 
+import com.kjone.useroauth.domain.board.entity.Board;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,7 +25,7 @@ public class Image {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
-    private BoardEntity board;
+    private Board board;
 
     private LocalDateTime createTime;
 
