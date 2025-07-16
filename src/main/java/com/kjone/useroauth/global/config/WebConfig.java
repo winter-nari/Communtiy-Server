@@ -1,4 +1,4 @@
-package com.kjone.useroauth.config;
+package com.kjone.useroauth.global.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("*")  // 모든 도메인 허용
+                .allowedOriginPatterns("http://localhost:3000")  // 프론트엔드 도메인 허용
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*")
                 .allowCredentials(true);
