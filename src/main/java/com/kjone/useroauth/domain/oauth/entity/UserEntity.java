@@ -1,7 +1,9 @@
-package com.kjone.useroauth.entity;
+package com.kjone.useroauth.domain.oauth.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kjone.useroauth.domain.board.entity.Board;
+import com.kjone.useroauth.domain.friend.entity.Friend;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,8 +30,11 @@ public class UserEntity {
     private String sex; //성별
     private String image;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Friend> friends = new HashSet<>();
+
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
-    private List<BoardEntity> boards = new ArrayList<>();
+    private List<Board> boards = new ArrayList<>();
 
     // 권한이라는 것에 외래키를 추가 함으로써
     @ElementCollection(fetch = FetchType.EAGER)
