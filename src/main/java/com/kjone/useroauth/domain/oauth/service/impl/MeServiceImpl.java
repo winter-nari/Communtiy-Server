@@ -1,10 +1,10 @@
-package com.kjone.useroauth.service.impl;
+package com.kjone.useroauth.domain.oauth.service.impl;
 
-import com.kjone.useroauth.dto.MemberDto;
-import com.kjone.useroauth.entity.UserEntity;
-import com.kjone.useroauth.repository.UserRepository;
-import com.kjone.useroauth.security.service.UserForSecurity;
-import com.kjone.useroauth.service.MeService;
+import com.kjone.useroauth.domain.oauth.dto.response.MemberResponse;
+import com.kjone.useroauth.domain.oauth.entity.UserEntity;
+import com.kjone.useroauth.domain.oauth.repository.UserRepository;
+import com.kjone.useroauth.global.security.service.UserForSecurity;
+import com.kjone.useroauth.domain.oauth.service.MeService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +18,7 @@ public class MeServiceImpl implements MeService {
     private final UserRepository userRepository;
 
     @Override
-    public MemberDto me() {
+    public MemberResponse me() {
         // 현재 인증된 UserDetails 꺼내기
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -32,6 +32,6 @@ public class MeServiceImpl implements MeService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        return MemberDto.fromEntity(user);
+        return MemberResponse.fromEntity(user);
     }
 }
