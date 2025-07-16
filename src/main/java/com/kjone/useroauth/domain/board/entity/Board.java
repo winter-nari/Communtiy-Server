@@ -1,12 +1,12 @@
-package com.kjone.useroauth.entity;
+package com.kjone.useroauth.domain.board.entity;
 
 
+import com.kjone.useroauth.domain.oauth.entity.UserEntity;
+import com.kjone.useroauth.domain.image.entity.Image;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "board")
@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BoardEntity {
+public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
