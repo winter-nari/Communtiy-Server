@@ -1,15 +1,15 @@
-package com.kjone.useroauth.service.impl;
+package com.kjone.useroauth.domain.board.service.impl;
 
-import com.kjone.useroauth.dto.BoardCreateRequestDto;
-import com.kjone.useroauth.dto.BoardWithImageDto;
-import com.kjone.useroauth.entity.BoardEntity;
-import com.kjone.useroauth.entity.Image;
-import com.kjone.useroauth.entity.UserEntity;
-import com.kjone.useroauth.repository.BoardRepository;
-import com.kjone.useroauth.repository.ImageRepository;
-import com.kjone.useroauth.repository.UserRepository;
-import com.kjone.useroauth.security.service.UserForSecurity;
-import com.kjone.useroauth.service.BoardService;
+import com.kjone.useroauth.domain.board.dto.request.BoardCreateRequest;
+import com.kjone.useroauth.domain.board.dto.reponse.BoardWithImageResponse;
+import com.kjone.useroauth.domain.board.entity.Board;
+import com.kjone.useroauth.domain.image.entity.Image;
+import com.kjone.useroauth.domain.oauth.entity.UserEntity;
+import com.kjone.useroauth.domain.board.repository.BoardRepository;
+import com.kjone.useroauth.domain.image.repository.ImageRepository;
+import com.kjone.useroauth.domain.oauth.repository.UserRepository;
+import com.kjone.useroauth.global.security.service.UserForSecurity;
+import com.kjone.useroauth.domain.board.service.BoardService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,8 +40,8 @@ public class BoardServiceImpl implements BoardService {
 
     // 해당 유저의 Board를 조회하는 메서드
     @Override
-    public BoardWithImageDto getBoardWithImage(Long boardId) {
-        BoardEntity board = boardRepository.findBoardWithImage(boardId)
+    public BoardWithImageResponse getBoardWithImage(Long boardId) {
+        Board board = boardRepository.findBoardWithImage(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
 
         Long currentUserId = getCurrentUserId(); // 위에서 가져온 현재 로그인된 사용자 ID
@@ -51,7 +51,7 @@ public class BoardServiceImpl implements BoardService {
         }
 
 
-        return BoardWithImageDto.builder()
+        return BoardWithImageResponse.builder()
                 .id(board.getId())
                 .name(board.getName())
                 .description(board.getDescription())
@@ -71,9 +71,9 @@ public class BoardServiceImpl implements BoardService {
 
     // 전체 Board 및 이미지 조회 메서드
     @Override
-    public List<BoardWithImageDto> getAllBoardsWithImage() {
+    public List<BoardWithImageResponse> getAllBoardsWithImage() {
         return boardRepository.findAllWithImage().stream()
-                .map(board -> BoardWithImageDto.builder()
+                .map(board -> BoardWithImageResponse.builder()
                         .id(board.getId())
                         .name(board.getName())
                         .description(board.getDescription())
@@ -85,25 +85,25 @@ public class BoardServiceImpl implements BoardService {
     // Board 생성 메서드
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public BoardWithImageDto createBoardWithImage(BoardCreateRequestDto dto, MultipartFile imageFile) {
+    public BoardWithImageResponse createBoardWithImage(BoardCreateRequest dto, MultipartFile imageFile) {
         Long userId = getCurrentUserId();
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Optional<BoardEntity> existingBoard = boardRepository.findByName(dto.getName());
+        Optional<Board> existingBoard = boardRepository.findByName(dto.getName());
         if (existingBoard.isPresent()) {
             throw new RuntimeException("이미 사용 중인 이름입니다.");
         }
 
-        BoardEntity board = BoardEntity.builder()
+        Board board = Board.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .createdBy(user)
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        BoardEntity savedBoard = boardRepository.save(board);
+        Board savedBoard = boardRepository.save(board);
 
         if (imageFile != null && !imageFile.isEmpty()) {
             String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
@@ -129,7 +129,7 @@ public class BoardServiceImpl implements BoardService {
             imageRepository.save(image);
         }
 
-        return BoardWithImageDto.builder()
+        return BoardWithImageResponse.builder()
                 .id(savedBoard.getId())
                 .name(savedBoard.getName())
                 .description(savedBoard.getDescription())
