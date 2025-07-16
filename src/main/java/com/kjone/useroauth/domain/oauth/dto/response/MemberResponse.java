@@ -1,12 +1,12 @@
-package com.kjone.useroauth.dto;
+package com.kjone.useroauth.domain.oauth.dto.response;
 
-import com.kjone.useroauth.entity.UserEntity;
+import com.kjone.useroauth.domain.oauth.entity.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class MemberDto {
+public class MemberResponse {
     private Long id;
     private String email;
     private String username;
@@ -14,8 +14,8 @@ public class MemberDto {
     private Integer age;
     private String sex;
 
-    public static MemberDto fromEntity(UserEntity user) {
-        return MemberDto.builder()
+    public static MemberResponse fromEntity(UserEntity user) {
+        return MemberResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .username(user.getUsername())
