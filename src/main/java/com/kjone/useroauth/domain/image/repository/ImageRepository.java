@@ -1,6 +1,6 @@
-package com.kjone.useroauth.repository;
+package com.kjone.useroauth.domain.image.repository;
 
-import com.kjone.useroauth.entity.Image;
+import com.kjone.useroauth.domain.image.entity.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
