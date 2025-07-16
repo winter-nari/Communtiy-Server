@@ -1,5 +1,6 @@
-package com.kjone.useroauth.entity;
+package com.kjone.useroauth.domain.board.entity;
 
+import com.kjone.useroauth.domain.oauth.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,7 +23,7 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
-    private BoardEntity board;
+    private Board board;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
