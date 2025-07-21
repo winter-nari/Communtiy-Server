@@ -1,5 +1,3 @@
----
-
 ## 핵심 기술 스택
 
 - **Spring Boot**  
@@ -9,7 +7,7 @@
 - **Spring Web**
 - **Spring WebSocket**
 
----
+
 
 ## 주요 패키지 설명
 
