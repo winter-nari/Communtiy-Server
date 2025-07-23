@@ -2,7 +2,7 @@
 
 - **Spring Boot**  
 - **Spring Data JPA**
-- **MySQL** (개발 환경에 따라)
+- **MariaDB** (개발 환경에 따라)
 - **Lombok**
 - **Spring Web**
 - **Spring WebSocket**
