@@ -15,14 +15,16 @@ public class CookieUtil {
         cookie.setMaxAge(maxAge);
         response.addCookie(cookie);
 
-        // SameSite 직접 헤더 추가
+        // 헤더 덮어쓰기 버그 방지:
+        // 기존 response.setHeader → addHeader로 변경해야 여러 쿠키 설정 시 덮어쓰지 않음!
         String cookieHeader = String.format("%s=%s; Max-Age=%d; Path=%s; %s %s SameSite=%s",
                 name, value, maxAge, path,
                 httpOnly ? "HttpOnly;" : "",
                 secure ? "Secure;" : "",
                 sameSite);
-        response.setHeader("Set-Cookie", cookieHeader);
+        response.addHeader("Set-Cookie", cookieHeader); // addHeader로 교체!
     }
+
 
     public static void deleteCookie(HttpServletResponse response, String name, String path) {
         Cookie cookie = new Cookie(name, null);

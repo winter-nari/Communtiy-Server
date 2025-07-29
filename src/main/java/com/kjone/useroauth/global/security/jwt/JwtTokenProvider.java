@@ -68,10 +68,12 @@ public class JwtTokenProvider {
         } catch (ExpiredJwtException e) {
             log.warn("[JWT 만료] {}", e.getMessage());
         } catch (JwtException | IllegalArgumentException e) {
-            log.warn("[JWT 오류] {}", e.getMessage());
+            // 민감 정보 노출 방지: 메시지에 토큰 내용이 노출될 수 있으므로 간략히.
+            log.warn("[JWT 오류] 유효하지 않은 JWT");
         }
         return false;
     }
+
 
     public String getUserIdFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build()

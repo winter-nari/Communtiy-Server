@@ -132,6 +132,7 @@ public class UserServiceImpl implements UserService {
 
     // 토큰 재발급
     @Override
+    @Transactional
     public LoginResponse refreshToken(String refreshToken, HttpServletResponse response) throws Exception {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new IllegalArgumentException("Refresh token이 유효하지 않습니다.");
@@ -146,7 +147,15 @@ public class UserServiceImpl implements UserService {
         RefreshToken savedTokenEntity = refreshTokenRepository.findByUser(user)
                 .orElseThrow(() -> new IllegalArgumentException("저장된 RefreshToken이 없습니다."));
 
+        // DB 만료일 검증 추가
+        if (savedTokenEntity.getExpiryDate().before(new Date())) {
+            refreshTokenRepository.deleteByUserId(userIdLong); // 옵션: 만료시 삭제
+            throw new IllegalArgumentException("Refresh Token 만료됨");
+        }
+
+        // 동일 토큰 불일치 시 재사용 공격 방지
         if (!refreshToken.equals(savedTokenEntity.getToken())) {
+            refreshTokenRepository.deleteByUserId(userIdLong); // 재사용 차단: 세션 만료 처리
             throw new IllegalArgumentException("토큰 불일치, 재로그인 필요");
         }
 
@@ -161,5 +170,6 @@ public class UserServiceImpl implements UserService {
 
         return new LoginResponse("OK", 200, new LoginDataResponse(newAccessToken, null));
     }
+
 
 }
